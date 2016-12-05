@@ -5,7 +5,7 @@ winston.level = 'error';
 
 module.exports.scaleFromZoomMsg = function(zoom){
     let msg = `Zoom: ${zoom}, Skala: `;
-    switch(zoom){
+    switch(parseInt(zoom)){
         case 0:  return msg+"1:500 million";
         case 1:  return msg+"1:250 million";
         case 2:  return msg+"1:150 million";
@@ -27,17 +27,19 @@ module.exports.scaleFromZoomMsg = function(zoom){
         case 18: return msg+"1:2,000";
         case 19: return msg+"1:1,000";
     }
+    console.log(`Can't map ${zoom} to scale`);
+    return "n/a";
 }
 
 module.exports.zoomFromScale = function(scale){
     if(scale in zoomLut){
-        return zoomLut[scale];
+        return parseInt(zoomLut[scale]);
     } else {
         for( key in zoomLut){
             winston.info(key)
             if( parseInt(scale) < parseInt(key) ){
                 console.log(scale, "->", key)
-                return zoomLut[key];
+                return parseInt(zoomLut[key]);
             }
         }
         winston.error(`scale level: ${scale} is not good number, must be between 1000 and 500000000`);
