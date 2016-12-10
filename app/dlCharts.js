@@ -8,6 +8,7 @@ winston.level = 'error';
 let scale = require('./scale.js')
 const slippy = require('./slippy.js')
 let u = require('./utils.js')
+let h = require('./HTML.js')
 
 let cnt = 0;
 
@@ -15,9 +16,9 @@ let dlCharts = function (northWest, southEast, baseUri, name, picdir) {
     return new Promise(function (resolve, reject) {
         let results = [];
         let chain = new Promise(function (resolve, reject) { resolve("start") })
+        var html = new h.HTMLer(name);
+        html.beginFile(name);
 
-        var html = {data:'<html>\n<head>\n\t<link rel="stylesheet" type="text/css" href="../style.css">\n</head>\n<body>\n'};
-        html.data += `<h1>${name}<h1/>\n`
         for (z = northWest.z; z <= southEast.z; z++) {
 
             let tileSet = tilesFromCoords(northWest, southEast, z);
@@ -33,10 +34,9 @@ let dlCharts = function (northWest, southEast, baseUri, name, picdir) {
             })
         }
         chain.then(function (result) {
-            html.data += "</table></body></html>"
-            let htmlFname = `html/${name}.html`
-            fs.writeFile(htmlFname, html.data, function () {
-                console.log(`\n${htmlFname} file written\n`);
+            html.endFile();
+            fs.writeFile(html.fname, html.data, function () {
+                console.log(`\n${html.fname} file written\n`);
             });
 
             console.log(name, picdir, "done!", results.length)
@@ -71,9 +71,9 @@ let downloadZoomLevel = function (html, tileSet, baseUri, dir) {
             fs.mkdirSync(dir);
         }
         let chain = new Promise(function (resolve, reject) { resolve("first") })
-        html.data += `<h2>${scale.scaleFromZoomMsg(tileSet.z)}</h2>\n<table>\n`;
+        html.beginZ(z);
         for (y = tileSet.top; y >= tileSet.bottom; y--) {
-            html.data += "\t<tr>\n"
+            html.beginY();
             for (x = tileSet.left; x <= tileSet.right; x++) {
                 let uri = `${baseUri}/${tileSet.z}/${x}/${y}.png`;
                 let fname = `${dir}/${tileSet.z}-${x}-${y}.png`;
@@ -87,12 +87,11 @@ let downloadZoomLevel = function (html, tileSet, baseUri, dir) {
                             console.log(result)
                         })
                 });
-
-                html.data += `\t\t<td><img src="../${fname}"/></td>\n`;
+                html.eachX(fname)
             }
-            html.data += "\t</tr>\n";
+            html.endY();
         }
-        html.data += "<table/>\n";
+        html.endZ();
         chain.then(function (result) {
             console.log("Zoom:", tileSet.z, "done!")
             resolve(results)
