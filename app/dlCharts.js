@@ -21,15 +21,13 @@ let dlCharts = function (northWest, southEast, baseUri, name, picdir) {
 
         for (z = northWest.z; z <= southEast.z; z++) {
 
-            let tileSet = tilesFromCoords(northWest, southEast, z);
+            let tileSet = slippy.tilesFromCoords(northWest, southEast, z);
             chain = chain.then(function (value) {
                 return downloadZoomLevel(html, tileSet, baseUri, picdir)
                     .then(function (result) {
                         results.pushArrayMembers(result)
-                        return result;
                     }).catch(function (result) {
                         console.log(result)
-                        return result;
                     })
             })
         }
@@ -43,25 +41,6 @@ let dlCharts = function (northWest, southEast, baseUri, name, picdir) {
             resolve(results)
         })
     })
-}
-
-let tilesFromCoords = function (northWest, southEast, z) {
-    let top = slippy.lat2tile(-northWest.y, z); // eg.lat2tile(34.422, 9);
-    let left = slippy.lon2tile(northWest.x, z);
-    let bottom = slippy.lat2tile(-southEast.y, z);
-    let right = slippy.lon2tile(southEast.x, z);
-    let width = Math.abs(left - right) + 1;
-    let height = Math.abs(top - bottom) + 1;
-
-    var total_tiles = width * height; // -> eg. 377
-
-    console.log(scale.scaleFromZoomMsg(z),
-        `width:${width}`, `height:${height}`, `tiles:${total_tiles}`,
-        `top:${top}`, `left:${left}`, `bottom:${bottom}`, `right:${right}`);
-    winston.info(`top/left:     ${slippy.tile2lon(top, z)}/${slippy.tile2lat(left, z)}`);
-    winston.info(`bottom/right: ${slippy.tile2lon(bottom, z)}/${slippy.tile2lat(right, z)}`);
-
-    return { z: z, top: top, bottom: bottom, left: left, right: right };
 }
 
 let downloadZoomLevel = function (html, tileSet, baseUri, dir) {
