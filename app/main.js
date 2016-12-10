@@ -4,20 +4,23 @@ let fs = require('fs');
 
 let dl = require('./dlCharts.js')
 let scale = require('./scale.js')
+let u = require('./utils.js')
 
 let settings = JSON.parse(fs.readFileSync('charts.json', 'utf8'));
 
 let uri = settings.uri;
-
+let picdir = settings.picdir;
 var indexHtml = '<html>\n<head>\n\t<link rel="stylesheet" type="text/css" href="style.css">\n</head>\n<body>\n';
 
+let results = [];
+let chain = new Promise(function (resolve, reject) { resolve("start") })
 for (i in settings.charts) {
     //let i=0;
     let chart = settings.charts[i];
     let name = chart.name;
     let zoom = scale.zoomFromScale(parseFloat(chart.scale));
-    let northWest = new Point(parseFloat(chart.west), parseFloat(chart.north), 0);
-    let southEast = new Point(parseFloat(chart.east), parseFloat(chart.south), zoom+2);
+    let northWest = new u.Point(parseFloat(chart.west), parseFloat(chart.north), 0);
+    let southEast = new u.Point(parseFloat(chart.east), parseFloat(chart.south), zoom);
 
     if (northWest.x > southEast.x) {
         console.log(`West coord: ${northWest.x}, east of East: ${southEast.y}`)
@@ -30,7 +33,14 @@ for (i in settings.charts) {
         process.exit(1);
     } else {
         console.log(`\n ${name} @ 1:${chart.scale}`)
-        dl.charts(northWest, southEast, uri, name);
+        chain = chain.then(function (value) {
+            return dl.charts(northWest, southEast, uri, name, picdir)
+                .then(function (result) {
+                    results.pushArrayMembers(result)
+                }).catch(function (result) {
+                    console.log(result)
+                })
+        })
         indexHtml += `<a href="html/${name}.html">${name}</a><br/>`
     }
     //break;
@@ -41,8 +51,6 @@ fs.writeFile(indexFname, indexHtml, function () {
     console.log(`\n${indexFname} file written`);
 });
 
-function Point(lon, lat, zoom) { //x, y, z
-    this.x = lon;
-    this.y = lat;
-    this.z = zoom;
-}
+chain.then(function (asd) {
+    console.log("All done!")
+})

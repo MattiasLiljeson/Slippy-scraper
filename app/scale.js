@@ -4,7 +4,7 @@ let winston = require('winston');
 winston.level = 'error';
 
 module.exports.scaleFromZoomMsg = function(zoom){
-    let msg = `Zoom: ${zoom}, Skala: `;
+    let msg = `Zoom: ${zoom}, Scale: `;
     switch(parseInt(zoom)){
         case 0:  return msg+"1:500 million";
         case 1:  return msg+"1:250 million";
