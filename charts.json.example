@@ -1,0 +1,22 @@
+{
+    "uri": "http://example.com/path/to/slippy/api",
+    "picdir": "pics",
+    "charts": [
+        {
+            "name": "Name of region to test",
+            "scale": "550000",
+            "north": "20",
+            "west": "15",
+            "south": "15",
+            "east": "20"
+        },
+        {
+            "name": "Another region",
+            "scale": "250000",
+            "north": "42.42",
+            "west": "43.43",
+            "south": "41.41",
+            "east": "42.42"
+        }
+    ]
+}
