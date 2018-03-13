@@ -5,7 +5,7 @@ A small nodejs app to test your own slippy map server
 
 Usage
 -----
-Prereq: nodejs and some js dependencies ()
+Prereq: nodejs and some js dependencies.
 
 1. Make a copy of `charts.json.example` and name it `charts.json`.
 2. Fill in the details in your `charts.json` file.
